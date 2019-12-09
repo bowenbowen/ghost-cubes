@@ -16,7 +16,7 @@ let handX = 100, handY = 100;
 let handNum;
 let haveLeftHand, leftHand, handRotateL, handHeightL,fingerDistL;
 let haveRightHand, rightHand, handRotateR, handHeightR, fingerDistR;
-let totalFingerDist;
+let currentActiveCube; // ++++++++++++++++++++++++ WIP ++++++++++++++++++++++++
 
 
 Leap.loop(function(frame) {
@@ -54,6 +54,8 @@ Leap.loop(function(frame) {
     if (haveLeftHand == true && haveRightHand == true){
       console.log("have both hands");
     }
+
+    // currentActiveCube = getActiveCube(frame.hands[0], minX, maxX, minY, maxY); // ++++++++++++++++++++++++ WIP ++++++++++++++++++++++++
     
   } else { console.log('no hands in the frame'); }
 
@@ -62,6 +64,7 @@ Leap.loop(function(frame) {
   // reset variables for the next frame
   haveLeftHand = false; 
   haveRightHand = false; 
+  currentActiveCube = null;
   
   
     
@@ -93,22 +96,53 @@ function updateHTML(haveLeftHand, leftHand, fingerDistL, handRotateL, handHeight
 
 }
 
+function getActiveCube(hand, minX, maxX, minY, maxY) {
+  let x_1 = minX + (maxX - minX) * 1/3;
+  let x_2 = minX + (maxX - minX) * 2/3;
+  let y_1 = minY + (maxY - minY) * 1/3;
+  let y_2 = minY + (maxY - minY) * 2/3;
+  let Xpos = hand.stabilizedPalmPosition[0];
+  let Ypos = hand.stabilizedPalmPosition[1];
+  let cubeIndex; // starting from 0
+
+  if (Ypos <= y_1){
+
+        if (Xpos <= x_1){ cubeIndex = 0; }
+        else if (Xpos > x_1 && Xpos < x_2){ cubeIndex = 1; }
+        else if (Xpos >= x_2){ cubeIndex = 2; }
+
+  } else if (Ypos > y_1 && Ypos < y_2){
+
+        if (Xpos <= x_1){ cubeIndex = 3; }
+        else if (Xpos > x_1 && Xpos < x_2){ cubeIndex = 4; }
+        else if (Xpos >= x_2){ cubeIndex = 5; }
+
+  } else if (Ypos >= y_1){
+
+        if (Xpos <= x_1){ cubeIndex = 6; }
+        else if (Xpos > x_1 && Xpos < x_2){ cubeIndex = 7; }
+        else if (Xpos >= x_2){ cubeIndex = 8; }
+
+  }
+  return cubeIndex;
+}
+
 
 /* ------------------------ set up ------------------------ */
 
 function setup() {
  createCanvas(500, 500);
 
-//  serial = new p5.SerialPort();
+ serial = new p5.SerialPort();
 
-//  serial.list();
-//  serial.open('/dev/tty.usbserial-1410');
-//  serial.on('connected', serverConnected);
-//  serial.on('list', gotList);
-//  serial.on('data', gotData);
-//  serial.on('error', gotError);
-//  serial.on('open', gotOpen);
-//  serial.on('close', gotClose);
+ serial.list();
+ serial.open('/dev/tty.usbserial-1440');
+ serial.on('connected', serverConnected);
+ serial.on('list', gotList);
+ serial.on('data', gotData);
+ serial.on('error', gotError);
+ serial.on('open', gotOpen);
+ serial.on('close', gotClose);
   
 }
 
@@ -153,6 +187,6 @@ function draw(){
   // console.log(handX);
   
   ellipse(map(round(handX), -width*0.25, width*0.25, 0, width), 50, 20, 20);
-  // outData =  constrain(map(round(handX), -width*0.25, width*0.25, 0, 255),0,255);
-  // serial.write(outData);
+  let outData =  haveLeftHand + " " + handRotateL + " " + handHeightL + " " + fingerDistL + " " + haveRightHand + " " + handRotateR + " " + handHeightR + " " + fingerDistR;
+  serial.write(outData);
 }
