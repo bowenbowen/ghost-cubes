@@ -15,23 +15,9 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_LEDS, PIN, NEO_GRB + NEO_KHZ800)
 const int servoPin = 9;
 // end servo
 
-// data vairables
-//boolean haveLeftHand = false;
-//float handRotateL = 30;
-//float handHeightL = 60;
-//float fingerDistL = 90;
-//
-//boolean haveRightHand = false;
-//float handRotateR = 30;
-//float handHeightR = 60;
-//float fingerDistR = 90;
-// end data variables
-
-
-int handHeightR = 0;
-int handRotateR = 0;
-String inData;
-String handHeightRString;
+int handRotateL,handHeightL,fingerDistL,handRotateR,handHeightR,fingerDistR;
+int COMMA_1, COMMA_2, COMMA_3, COMMA_4, COMMA_5, COMMA_6, COMMA_7, COMMA_8;
+String inData, isLeftString, handRotateLString, handHeightLString, fingerDistLString, isRightString, handRotateRString, handHeightRString, fingerDistRString;
 
 
 // https://www.arduino.cc/en/Reference/StringLibrary
@@ -43,6 +29,7 @@ void setup() {
 
   // start the strip and blank it out
   strip.setBrightness(0);
+  setAll(0,0,0);
   strip.begin();
 
   // initialize digital pin LED_BUILTIN as an output.
@@ -55,56 +42,45 @@ void loop() {
   // read the input from p5.js
   if ( Serial.available()) { // when there is input
     inData = Serial.readStringUntil('\n'); // read it until new line
-    int firstValueEnd = inData.indexOf(','); // find the first comma
-    handHeightRString = inData.substring(0, firstValueEnd); // first string
-    handHeightR = handHeightRString.toInt();
+    COMMA_1 = inData.indexOf(','); // find the first comma
+    isLeftString = inData.substring(0, COMMA_1);
 
-    int secondValueEnd = inData.indexOf(',', firstValueEnd+1);
-    String handRotateRString = inData.substring(firstValueEnd+1, secondValueEnd);
+    COMMA_2 = inData.indexOf(',', COMMA_1+1);
+    handRotateLString = inData.substring(COMMA_1+1, COMMA_2);
+    handRotateL = handRotateLString.toInt();
+
+    COMMA_3 = inData.indexOf(',', COMMA_2+1);
+    handHeightLString = inData.substring(COMMA_2+1, COMMA_3);
+    handHeightL = handHeightLString.toInt();
+
+    COMMA_4 = inData.indexOf(',', COMMA_3+1);
+    fingerDistLString = inData.substring(COMMA_3+1, COMMA_4);
+    fingerDistL = fingerDistLString.toInt();
+
+    COMMA_5 = inData.indexOf(',', COMMA_4+1); // find the first comma
+    isRightString = inData.substring(COMMA_4+1, COMMA_5);
+
+    COMMA_6 = inData.indexOf(',', COMMA_5+1);
+    handRotateRString = inData.substring(COMMA_5+1, COMMA_6);
     handRotateR = handRotateRString.toInt();
 
-//    haveLeftHand = getValue(inData, ' ', 0);
-//    handRotateL = getValue(inData, ' ', 1).toFloat();
-//    handHeightL = getValue(inData, ' ', 2).toFloat();
-//    fingerDistL = getValue(inData, ' ', 3).toFloat();
-//    
-//    haveRightHand = getValue(inData, ' ', 4);
-//    handRotateR = getValue(inData, ' ', 5).toFloat();
-//    handHeightR = getValue(inData, ' ', 6).toFloat();
-//    fingerDistR = getValue(inData, ' ', 7).toFloat();
+    COMMA_7 = inData.indexOf(',', COMMA_6+1);
+    handHeightRString = inData.substring(COMMA_6+1, COMMA_7);
+    handHeightR = handHeightRString.toInt();
+
+    COMMA_8 = inData.indexOf(',', COMMA_7+1);
+    fingerDistRString = inData.substring(COMMA_7+1, COMMA_8);
+    fingerDistR = fingerDistRString.toInt();
   } 
-//
-  Serial.print("indata: ");
-  Serial.println(inData);
-//
-//  Serial.print("handHeightRString:");
-//  Serial.println(handHeightRString);
-//
-//  Serial.print("handHeightR:");
-//  Serial.println(handHeightR);
-
-  strip.setBrightness(handHeightR);
-  setAll(handRotateR,255,0);
-}
 
 
-// split string in C: https://stackoverflow.com/questions/9072320/split-string-into-string-array
+  
+//    Serial.print("indata: ");
+//    Serial.println(inData);
 
-String getValue(String data, char separator, int index)
-{
-  int found = 0;
-  int strIndex[] = {0, -1};
-  int maxIndex = data.length()-1;
-
-  for(int i=0; i<=maxIndex && found<=index; i++){
-    if(data.charAt(i)==separator || i==maxIndex){
-        found++;
-        strIndex[0] = strIndex[1]+1;
-        strIndex[1] = (i == maxIndex) ? i+1 : i;
-    }
-  }
-  return found>index ? data.substring(strIndex[0], strIndex[1]) : "";
-}
+    strip.setBrightness(handHeightR);
+    setAll(handRotateR,handHeightR,0);
+} 
 
 /* NeoPixel functions */
 

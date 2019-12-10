@@ -9,32 +9,26 @@ let portName = '/dev/tty.usbserial-14110';
 let inData;
 let outData;
 
-
 let latestData = "waiting for data";
 
-let handX = 100,
-  handY = 100;
-
-
+let handX = 100, handY = 100;
 
 /* ------------------- leap motion stuff ------------------- */
 
 let handNum;
 let haveLeftHand, leftHand, handRotateL, handHeightL, fingerDistL;
 let haveRightHand, rightHand, handRotateR, handHeightR, fingerDistR;
+let isLeftHand, isRightHand;
 let currentActiveCube; // ++++++++++++++++++++++++ WIP ++++++++++++++++++++++++
 
 
 Leap.loop(function (frame) {
 
   handNum = frame.hands.length;
-
   if (frame.hands.length > 0) {
-
     let hand = frame.hands[0];
     handX = hand.stabilizedPalmPosition[0];
     handY = hand.stabilizedPalmPosition[1];
-
     // update hand stats
     for (let i = 0; i < frame.hands.length; i++) {
       if (frame.hands[i].type == 'left') {
@@ -214,11 +208,25 @@ function draw() {
 
   // let outData = haveLeftHand + "," + handRotateL + "," + handHeightL + "," + fingerDistL + "," + haveRightHand + "," + handRotateR + "," + handHeightR + "," + fingerDistR;
 
-  let outData = int(map(handHeightR, 0, 500, 0, 255)) + "," + int(map(handRotateR, -1, 1, 0, 255))+"\n";
+  /* from p5 */
+  let outData = 
+    haveLeftHand + "," + // bool => string
+    int(map(handRotateL, -1, 1, 0, 255)) + "," +
+    int(map(handHeightL, 0, 500, 0, 255)) + "," +
+    int(map(fingerDistL, 0, 100, 0, 255)) + "," +
+    haveRightHand + "," + // bool => string
+    int(map(handRotateR, -1, 1, 0, 255)) + "," +
+    int(map(handHeightR, 0, 500, 0, 255)) + "," + 
+    int(map(fingerDistR, 0, 100, 0, 255)) + "\n";
 
+
+  // let outData = 
+  //   int(map(handRotateR, -1, 1, 0, 255)) + "," +
+  //   int(map(handHeightR, 0, 500, 0, 255)) + "\n";
 
   console.log("outdata: " + outData);
 
+  // setTimeout(serial.write(outData),500);
   serial.write(outData);
   serial.clear();
 }
