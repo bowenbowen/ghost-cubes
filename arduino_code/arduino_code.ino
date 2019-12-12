@@ -1,10 +1,11 @@
 #include <Adafruit_NeoPixel.h>
+#include <Servo.h> 
 
 /* declare variables */
 
 // NeoPixel 
 #define PIN 5
-#define NUM_LEDS 1
+#define NUM_LEDS 9
 #define DELAYVAL 200
 //create a NeoPixel strip
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_LEDS, PIN, NEO_GRB + NEO_KHZ800);
@@ -13,14 +14,14 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_LEDS, PIN, NEO_GRB + NEO_KHZ800)
 
 // servo
 const int servoPin = 9;
+Servo myServo;
+int pos = 0;
 // end servo
 
 int handRotateL,handHeightL,fingerDistL,handRotateR,handHeightR,fingerDistR;
 int COMMA_1, COMMA_2, COMMA_3, COMMA_4, COMMA_5, COMMA_6, COMMA_7, COMMA_8;
-String inData, isLeftString, handRotateLString, handHeightLString, fingerDistLString, isRightString, handRotateRString, handHeightRString, fingerDistRString;
+String inData, isLeft, handRotateLString, handHeightLString, fingerDistLString, isRight, handRotateRString, handHeightRString, fingerDistRString;
 
-
-// https://www.arduino.cc/en/Reference/StringLibrary
 
 // the setup function runs once when you press reset or power the board
 void setup() {
@@ -28,61 +29,65 @@ void setup() {
   Serial.begin(9600);
 
   // start the strip and blank it out
-  strip.setBrightness(0);
-  setAll(0,0,0);
   strip.begin();
+  strip.setBrightness(0);
 
-  // initialize digital pin LED_BUILTIN as an output.
-  pinMode(servoPin, OUTPUT);
+  myServo.attach(9);
+  myServo.write(180);
 }
 
 // the loop function runs over and over again forever
 void loop() {
+
+    if ( Serial.available() ) { // when there is input
+      inData = Serial.readStringUntil('\n'); // read it until new line
+      COMMA_1 = inData.indexOf(','); // find the first comma
+      handRotateRString = inData.substring(0, COMMA_1);
+      handRotateR = handRotateRString.toInt();
   
-  // read the input from p5.js
-  if ( Serial.available()) { // when there is input
-    inData = Serial.readStringUntil('\n'); // read it until new line
-    COMMA_1 = inData.indexOf(','); // find the first comma
-    isLeftString = inData.substring(0, COMMA_1);
+      COMMA_2 = inData.indexOf(',', COMMA_1+1);
+      handHeightRString = inData.substring(COMMA_1+1, COMMA_2);
+      handHeightR = handHeightRString.toInt();
+    }
 
-    COMMA_2 = inData.indexOf(',', COMMA_1+1);
-    handRotateLString = inData.substring(COMMA_1+1, COMMA_2);
-    handRotateL = handRotateLString.toInt();
+    pos = map(handRotateR, 0, 255, 170, 0);
+    strip.setBrightness((handRotateR+handHeightR)/2);
+    setAll(handRotateR,handHeightR,0);    
+    myServo.write(pos);
+}
 
-    COMMA_3 = inData.indexOf(',', COMMA_2+1);
-    handHeightLString = inData.substring(COMMA_2+1, COMMA_3);
-    handHeightL = handHeightLString.toInt();
-
-    COMMA_4 = inData.indexOf(',', COMMA_3+1);
-    fingerDistLString = inData.substring(COMMA_3+1, COMMA_4);
-    fingerDistL = fingerDistLString.toInt();
-
-    COMMA_5 = inData.indexOf(',', COMMA_4+1); // find the first comma
-    isRightString = inData.substring(COMMA_4+1, COMMA_5);
-
-    COMMA_6 = inData.indexOf(',', COMMA_5+1);
-    handRotateRString = inData.substring(COMMA_5+1, COMMA_6);
-    handRotateR = handRotateRString.toInt();
-
-    COMMA_7 = inData.indexOf(',', COMMA_6+1);
-    handHeightRString = inData.substring(COMMA_6+1, COMMA_7);
-    handHeightR = handHeightRString.toInt();
-
-    COMMA_8 = inData.indexOf(',', COMMA_7+1);
-    fingerDistRString = inData.substring(COMMA_7+1, COMMA_8);
-    fingerDistR = fingerDistRString.toInt();
-  } 
-
-
-  
-//    Serial.print("indata: ");
-//    Serial.println(inData);
-
-    strip.setBrightness(handHeightR);
-    setAll(handRotateR,handHeightR,0);
-} 
+/* call this when testing the light */
+void testLight(){
+    strip.setBrightness(255);
+    setAll(0,0,0);
+    RGBLoop(); 
+}
 
 /* NeoPixel functions */
+void RGBLoop(){
+  for(int j = 0; j < 3; j++ ) {
+    // Fade IN
+    for(int k = 0; k < 256; k++) {
+      switch(j) {
+        case 0: setAll(k,0,0); break;
+        case 1: setAll(0,k,0); break;
+        case 2: setAll(0,0,k); break;
+      }
+      showStrip();
+      delay(3);
+    }
+    // Fade OUT
+    for(int k = 255; k >= 0; k--) {
+      switch(j) {
+        case 0: setAll(k,0,0); break;
+        case 1: setAll(0,k,0); break;
+        case 2: setAll(0,0,k); break;
+      }
+      showStrip();
+      delay(3);
+    }
+  }
+}
 
 /* end NeoPixel functions */
 
