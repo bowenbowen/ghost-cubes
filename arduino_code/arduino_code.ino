@@ -6,7 +6,6 @@
 // NeoPixel 
 #define PIN 5
 #define NUM_LEDS 9
-#define DELAYVAL 200
 //create a NeoPixel strip
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_LEDS, PIN, NEO_GRB + NEO_KHZ800);
 
@@ -31,9 +30,9 @@ void setup() {
   // start the strip and blank it out
   strip.begin();
   strip.setBrightness(0);
-
+  
   myServo.attach(9);
-  myServo.write(180);
+  myServo.write(0);
 }
 
 // the loop function runs over and over again forever
@@ -48,12 +47,16 @@ void loop() {
       COMMA_2 = inData.indexOf(',', COMMA_1+1);
       handHeightRString = inData.substring(COMMA_1+1, COMMA_2);
       handHeightR = handHeightRString.toInt();
-    }
+      
+      pos = map(handRotateR, 0, 255, 80, 20);
+      
+      strip.setBrightness((handRotateR+handHeightR)/2);
+      setAll(handRotateR,handHeightR,50+handRotateR*0.5+handHeightR*0.5);    
+      myServo.write(pos);
+    } 
 
-    pos = map(handRotateR, 0, 255, 170, 0);
-    strip.setBrightness((handRotateR+handHeightR)/2);
-    setAll(handRotateR,handHeightR,0);    
-    myServo.write(pos);
+    
+//  testLight();
 }
 
 /* call this when testing the light */

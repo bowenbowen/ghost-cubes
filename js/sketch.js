@@ -103,12 +103,12 @@ function updateHTML(haveLeftHand, leftHand, fingerDistL, handRotateL, handHeight
 
 function preload() {
   soundFormats('mp3');
-  song = loadSound('files/song.mp3');
+  song = loadSound('files/12.mp3');
 }
 
 function setup() {
   createCanvas(500, 500);
-  colorMode(HSB)
+  colorMode(RGB)
 
   /* music part */
   // song.loop();
@@ -172,7 +172,7 @@ function portClose() {
 
 function draw() {
   bgVal = int(map(handRotateR, -1, 1, 0, 255))+int(map(handHeightR, 0, 500, 0, 255));
-  background(bgVal/2, bgVal/2, 255)
+  background(int(map(handRotateR, -1, 1, 0, 255)), int(map(handHeightR, 0, 500, 0, 255)), 50+bgVal)
 
   ellipse(map((handRotateR), -1, 1, 20, height), map((handHeightR), 0, 500, 0, width), 20, 20);
   
@@ -193,6 +193,7 @@ function draw() {
     map(handHeightR, 0, 500, 0, 255) + "\n";
 
   console.log("outdata: " + outData);
+
   serial.write(outData);
   serial.clear(); // clean
 
@@ -200,7 +201,7 @@ function draw() {
 
   // Map handRotateR to a the cutoff frequency from the lowest
   // frequency (10Hz) to the highest (22050Hz) that humans can hear
-  filterFreq = map(handRotateR, -1, 1, 10, 24000);
+  filterFreq = map(handRotateR, -1, 1, 10, 22000);
 
   // Map handHeightR to resonance (volume boost) at the cutoff frequency
   filterRes = map(handHeightR, 0, 500, 30, 5);
@@ -211,9 +212,11 @@ function draw() {
 }
 
 function songPlay() {
-  if(haveLeftHand == 1 && !song.isPlaying()){
+  if(haveLeftHand == 1 && !song.isPlaying() && handRotateL < 0){
     song.play();
-  } else if(haveLeftHand == 0 && song.isPlaying()){
+  }
+
+  else if((haveLeftHand == 1 && handRotateL > 0.5 && song.isPlaying())){
     song.stop();
-  }  
+  }
 }
