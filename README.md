@@ -1,9 +1,15 @@
 # ghost-cubes
 
+
+## Circuit:
+![Circuit](ghost_cubes_circuit.jpg)
+
 ## Interaction types:
 
-1. show hand ------------------ cube lights up ---------------- sound starts
-2. fingers open and close --- brightness (other than the active cube) ----- sound volume
-3. palm rotate ---------------- cubes rotate ------------------ sound pitch 
-4. show both hands ------------ white > colour ---------------- both channels<br/>
-   hand height ---------------- saturation -------------------- adjust volume in one channel
+### Left hand
+1. Palm down -> music starts
+2. Palm up -> music stops
+
+### Right hand
+1. Height -> LEDs' colour changes -> Music volume changes
+2. Rotation -> Cubes rotate -> Music frequency changes
